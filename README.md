@@ -22,7 +22,7 @@ cd openstack-ocata-install-script/
 chmod +x *.sh
 ./00-pre.sh
 ```
-**00-pre.sh 스크립트에 hostname으로 접속하는 스크립트가 포함은 되어있지만 **
+**00-pre.sh 스크립트에 hostname으로 접속하는 스크립트가 포함은 되어있지만**
 
 **실행 자체는 컨트롤러의 호스트네임이 프롬프트된 상태로 실행하여야 합니다.**
 
