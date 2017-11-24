@@ -67,8 +67,8 @@ systemctl restart neutron-l3-agent.service
 
 ########## Neutron for compute
 
-cat config.sh > nova.sh
-cat << "EOZ" >> nova.sh
+cat config.sh > neutron.sh
+cat << "EOZ" >> neutron.sh
 yum install -y openstack-neutron-linuxbridge ebtables ipset
 cp /etc/neutron/neutron.conf /etc/neutron/backup.neutron.conf
 sed -i '/^#/d' /etc/neutron/neutron.conf
