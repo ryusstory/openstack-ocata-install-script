@@ -1,5 +1,5 @@
 #!/bin/bash
-. admin-openrc
+. ~/admin-openrc
 
 openstack network create  --share --external \
   --provider-physical-network provider \

@@ -1,6 +1,6 @@
 #!/bin/bash
 source ./config.sh
-. admin-openrc
+. ~/admin-openrc
 yum install -y openstack-dashboard
 cp /etc/openstack-dashboard/local_settings /etc/openstack-dashboard/backup.local_settings
 sed -i '/^#/d' /etc/openstack-dashboard/local_settings
@@ -27,7 +27,7 @@ sed -i 's/'enable_firewall': False,/'enable_firewall': True,/g' /etc/openstack-d
 sed -i 's/'enable_vpn': False,/'enable_vpn': True,/g' /etc/openstack-dashboard/local_settings
 sed -i 's/'enable_fip_topology_check': False,/'enable_fip_topology_check': True,/g' /etc/openstack-dashboard/local_settings
 sed -i '/TIME_ZONE/c\TIME_ZONE = "UTC"' /etc/openstack-dashboard/local_settings
+#아래는 버그 관련
+echo "WSGIApplicationGroup %{GLOBAL}" >> /etc/httpd/conf.d/openstack-dashboard.conf
 
 systemctl restart httpd.service memcached.service
-
-

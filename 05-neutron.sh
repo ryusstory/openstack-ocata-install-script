@@ -1,10 +1,9 @@
 #!/bin/bash
 source ./config.sh
 ########## Neutron for controller
-. admin-openrc
+. ~/admin-openrc
 ## Create DB
 mysql -u root -p$DBPASS -e "CREATE DATABASE neutron; GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'localhost' IDENTIFIED BY '$NEUTRON_DBPASS'; GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'%' IDENTIFIED BY '$NEUTRON_DBPASS';"
-. ~/admin-openrc
 /usr/bin/expect <<EOE
 set prompt "#"
 spawn bash -c " openstack user create --domain default --password-prompt neutron"
@@ -99,3 +98,4 @@ then
     sed -i "s/cpt_ip/cpt2_ip/g" neutron.sh
     ssh $cpt2_hostname 'bash -s' < neutron.sh
 fi
+neutron agent-list

@@ -37,3 +37,4 @@ systemctl enable openstack-glance-api.service openstack-glance-registry.service
 systemctl start openstack-glance-api.service openstack-glance-registry.service
 #curl -O http://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img
 #openstack image create "cirros" --file cirros-0.4.0-x86_64-disk.img --disk-format qcow2 --container-format bare --public
+glance image-list

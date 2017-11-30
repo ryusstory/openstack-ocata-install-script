@@ -1,7 +1,7 @@
 #!/bin/bash
 source ./config.sh
 ########## Nova for controller
-. admin-openrc
+. ~/admin-openrc
 ## Create DB
 mysql -u root -p$DBPASS -e "CREATE DATABASE nova_api; CREATE DATABASE nova; CREATE DATABASE nova_cell0; GRANT ALL PRIVILEGES ON nova_api.* TO 'nova'@'localhost' IDENTIFIED BY '$NOVA_DBPASS'; GRANT ALL PRIVILEGES ON nova_api.* TO 'nova'@'%' IDENTIFIED BY '$NOVA_DBPASS'; GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'localhost' IDENTIFIED BY '$NOVA_DBPASS'; GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'%' IDENTIFIED BY '$NOVA_DBPASS'; GRANT ALL PRIVILEGES ON nova_cell0.* TO 'nova'@'localhost' IDENTIFIED BY '$NOVA_DBPASS'; GRANT ALL PRIVILEGES ON nova_cell0.* TO 'nova'@'%' IDENTIFIED BY '$NOVA_DBPASS';"
 /usr/bin/expect <<EOE
@@ -54,8 +54,8 @@ sed -i "/\[placement\]/a os_region_name = RegionOne\nproject_domain_name = Defau
 # 그래서 해당 증상에 대한 이유는 잘 모르겠습니다.
 # compute scheduler를 통하시면 내용을 알아보실 수 있습니다.
 # https://docs.openstack.org/ocata/config-reference/compute/schedulers.html
-sed -i '/\[scheduler\]/a scheduler_driver=nova.scheduler.filter_scheduler.FilterScheduler' /etc/nova/nova.conf
-sed -i '/\[filter_scheduler\]/a enabled_filters=RamFilter,DiskFilter,RetryFilter,AvailabilityZoneFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter' /etc/nova/nova.conf
+#sed -i '/\[scheduler\]/a scheduler_driver=nova.scheduler.filter_scheduler.FilterScheduler' /etc/nova/nova.conf
+#sed -i '/\[filter_scheduler\]/a enabled_filters=RamFilter,DiskFilter,RetryFilter,AvailabilityZoneFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter' /etc/nova/nova.conf
 # 아래는 버그에 대한 일시적인 패치로 공식 가이드에 포함되어있습니다.
 # https://bugzilla.redhat.com/show_bug.cgi?id=1430540
 echo "
@@ -107,7 +107,5 @@ then
     sed -i "s/cpt_ip/cpt2_ip/g" nova.sh
     ssh $cpt2_hostname 'bash -s' < nova.sh
 fi
-
 su -s /bin/sh -c "nova-manage cell_v2 discover_hosts --verbose" nova
-
-##################### Neutron
+openstack compute service list
