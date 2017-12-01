@@ -58,16 +58,6 @@ sed -i "/\[placement\]/a os_region_name = RegionOne\nproject_domain_name = Defau
 #sed -i '/\[filter_scheduler\]/a enabled_filters=RamFilter,DiskFilter,RetryFilter,AvailabilityZoneFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter' /etc/nova/nova.conf
 # 아래는 버그에 대한 일시적인 패치로 공식 가이드에 포함되어있습니다.
 # https://bugzilla.redhat.com/show_bug.cgi?id=1430540
-echo "
-<Directory /usr/bin>
-   <IfVersion >= 2.4>
-      Require all granted
-   </IfVersion>
-   <IfVersion < 2.4>
-      Order allow,deny
-      Allow from all
-   </IfVersion>
-</Directory>" >> /etc/httpd/conf.d/00-nova-placement-api.conf
 
 systemctl restart httpd
 su -s /bin/sh -c "nova-manage api_db sync" nova

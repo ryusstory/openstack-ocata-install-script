@@ -4,6 +4,22 @@ source ./config.sh
 ## disable firewall
 yum remove -y firewalld
 iptables -F
+# daum repo
+tar cvzf /etc/yum.repos.d/original.tar.gz /etc/yum.repos.d/*.repo
+rm -rf /etc/yum.repos.d/*.repo
+echo '[base]
+name=CentOS-$releasever - Base
+baseurl=http://ftp.daumkakao.com/centos/$releasever/os/$basearch/
+gpgcheck=0 
+[updates]
+name=CentOS-$releasever - Updates
+baseurl=http://ftp.daumkakao.com/centos/$releasever/updates/$basearch/
+gpgcheck=0
+[extras]
+name=CentOS-$releasever - Extras
+baseurl=http://ftp.daumkakao.com/centos/$releasever/extras/$basearch/
+gpgcheck=0' > /etc/yum.repos.d/Daum.repo
+yum clean all && yum repolist
 ## NTP Installation
 ## 테스트 스크립트 편의상 0.0.0.0/0 으로 할당하였습니다. 해당 서브넷만 주셔야 합니다.
 yum install -y chrony
@@ -29,6 +45,23 @@ hostnamectl set-hostname $cpt1_hostname
 echo "$ctr_ip $ctr_hostname" >> /etc/hosts
 if [ $numofcompute -ge 1 ] ;then echo "$cpt1_ip $cpt1_hostname" >> /etc/hosts;fi
 if [ $numofcompute -ge 2 ] ;then echo "$cpt2_ip $cpt2_hostname" >> /etc/hosts;fi
+
+# daum repo
+tar cvzf /etc/yum.repos.d/original.tar.gz /etc/yum.repos.d/*.repo
+rm -rf /etc/yum.repos.d/*.repo
+echo '[base]
+name=CentOS-$releasever - Base
+baseurl=http://ftp.daumkakao.com/centos/$releasever/os/$basearch/
+gpgcheck=0 
+[updates]
+name=CentOS-$releasever - Updates
+baseurl=http://ftp.daumkakao.com/centos/$releasever/updates/$basearch/
+gpgcheck=0
+[extras]
+name=CentOS-$releasever - Extras
+baseurl=http://ftp.daumkakao.com/centos/$releasever/extras/$basearch/
+gpgcheck=0' > /etc/yum.repos.d/Daum.repo
+yum clean all && yum repolist
 
 #chrony 설치
 yum install -y chrony

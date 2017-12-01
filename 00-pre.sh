@@ -14,7 +14,6 @@ hostnamectl set-hostname $ctr_hostname
 # 컴퓨터 서버 수에 따라 호스트네임 추가
 
 yum install -y expect
-
 echo "$ctr_ip $ctr_hostname" >> /etc/hosts
 if [ $numofcompute -ge 1 ] ;then echo "$cpt1_ip $cpt1_hostname" >> /etc/hosts;fi
 if [ $numofcompute -ge 2 ] ;then echo "$cpt2_ip $cpt2_hostname" >> /etc/hosts;fi
