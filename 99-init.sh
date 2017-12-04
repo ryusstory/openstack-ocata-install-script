@@ -1,13 +1,13 @@
 #!/bin/bash
 . ~/admin-openrc
 
-openstack network create  --share --external \
+openstack network create --share --external \
   --provider-physical-network provider \
   --provider-network-type flat provider
 
 openstack subnet create --network provider \
   --allocation-pool start=192.168.0.150,end=192.168.0.200 \
-  --dns-nameserver 168.126.63.1 --gateway 192.168.0.151 \
+  --dns-nameserver 168.126.63.1 --gateway 192.168.0.1 \
   --subnet-range 192.168.0.0/24 provider
 
 openstack network create selfservice
@@ -22,8 +22,8 @@ neutron router-interface-add router selfservice
 
 neutron router-gateway-set router provider
 
-openstack flavor create --id 0 --vcpus 1 --ram 64 --disk 1 m1.nano
-curl -O http://192.168.0.119/osrepo/cirros-0.4.0-x86_64-disk.img
+openstack flavor create --vcpus 1 --ram 64 --disk 1 m1.nano
+curl -O http://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img
 openstack image create "cirros" --file cirros-0.4.0-x86_64-disk.img --disk-format qcow2 --container-format bare --public
 
 openstack security group rule create --proto icmp default

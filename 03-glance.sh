@@ -1,8 +1,8 @@
 #!/bin/bash
 source ./config.sh
 ########## Glance for controller
-. ~/admin-openrc
 mysql -u root -p$DBPASS -e "CREATE DATABASE glance; GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'localhost' IDENTIFIED BY '$GLANCE_DBPASS'; GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'%' IDENTIFIED BY '$GLANCE_DBPASS';"
+. ~/admin-openrc
 
 /usr/bin/expect <<EOE
 set prompt "#"

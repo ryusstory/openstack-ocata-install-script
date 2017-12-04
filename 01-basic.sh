@@ -4,24 +4,8 @@ source ./config.sh
 ## disable firewall
 yum remove -y firewalld
 iptables -F
-# daum repo
-tar cvzf /etc/yum.repos.d/original.tar.gz /etc/yum.repos.d/*.repo
-rm -rf /etc/yum.repos.d/*.repo
-echo '[base]
-name=CentOS-$releasever - Base
-baseurl=http://ftp.daumkakao.com/centos/$releasever/os/$basearch/
-gpgcheck=0 
-[updates]
-name=CentOS-$releasever - Updates
-baseurl=http://ftp.daumkakao.com/centos/$releasever/updates/$basearch/
-gpgcheck=0
-[extras]
-name=CentOS-$releasever - Extras
-baseurl=http://ftp.daumkakao.com/centos/$releasever/extras/$basearch/
-gpgcheck=0' > /etc/yum.repos.d/Daum.repo
-yum clean all && yum repolist
 ## NTP Installation
-## 테스트 스크립트 편의상 0.0.0.0/0 으로 할당하였습니다. 해당 서브넷만 주셔야 합니다.
+## 테스트 스크립트 편의상 0.0.0.0/0 으로 할당하였습니다. 원래는 해당 서브넷만 주셔야 합니다.
 yum install -y chrony
 echo "allow 0.0.0.0/0" >> /etc/chrony.conf
 systemctl enable chronyd.service
@@ -30,9 +14,6 @@ systemctl start chronyd.service
 yum install -y centos-release-openstack-ocata
 ## Upgrade Package
 yum upgrade -y
-# yum upgrade는 update에 --obsoletes 플래그를 추가한 것과 같습니다.
-# 해당 내용은 update 명령어에서 obsoletes(오래된, 쓸모 없게 된) 플래그를 사용하면 필요없는 패키지를 
-# 삭제한다고 나와 있습니다. 즉, upgrade는 update --obsoletes 효과를 나타낸다고 합니다. 
 ## Install openstack client
 yum install -y python-openstackclient
 ## Install Selinux-policy
@@ -45,24 +26,6 @@ hostnamectl set-hostname $cpt1_hostname
 echo "$ctr_ip $ctr_hostname" >> /etc/hosts
 if [ $numofcompute -ge 1 ] ;then echo "$cpt1_ip $cpt1_hostname" >> /etc/hosts;fi
 if [ $numofcompute -ge 2 ] ;then echo "$cpt2_ip $cpt2_hostname" >> /etc/hosts;fi
-
-# daum repo
-tar cvzf /etc/yum.repos.d/original.tar.gz /etc/yum.repos.d/*.repo
-rm -rf /etc/yum.repos.d/*.repo
-echo '[base]
-name=CentOS-$releasever - Base
-baseurl=http://ftp.daumkakao.com/centos/$releasever/os/$basearch/
-gpgcheck=0 
-[updates]
-name=CentOS-$releasever - Updates
-baseurl=http://ftp.daumkakao.com/centos/$releasever/updates/$basearch/
-gpgcheck=0
-[extras]
-name=CentOS-$releasever - Extras
-baseurl=http://ftp.daumkakao.com/centos/$releasever/extras/$basearch/
-gpgcheck=0' > /etc/yum.repos.d/Daum.repo
-yum clean all && yum repolist
-
 #chrony 설치
 yum install -y chrony
 # chrony 설정
@@ -107,7 +70,7 @@ symbolic-links=0
 !includedir /etc/my.cnf.d
 " > /etc/my.cnf
 systemctl enable mariadb.service
-systemctl restart mariadb.service
+systemctl start mariadb.service
 echo -e "\n\n$DBPASS\n$DBPASS\ny\nn\ny\ny\n " | /usr/bin/mysql_secure_installation
 mysql -u root -p$DBPASS -e "set global max_connections = 4096;"
 
