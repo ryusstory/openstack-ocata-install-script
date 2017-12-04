@@ -6,8 +6,9 @@ openstack ocata installation through "openstack installation guide" by shell scr
 
  - tested Centos 7 1708
 
-**롤백 매커니즘이 없는 스크립트로 중간에 문제가 생길 경우 되돌릴 수 없습니다.
-제 경우 초기상태 스냅샷을 뜬 VM을 통해 테스트 했습니다.**
+**롤백 매커니즘이 없는 스크립트로 중간에 문제가 생길 경우 되돌릴 수 없습니다.**
+
+**제 경우 초기상태 스냅샷을 뜬 VM을 통해 테스트 했습니다.**
 
 This is just batch script, so there's no rollback mechanism on this script.
 
@@ -21,9 +22,11 @@ cd openstack-ocata-install-script/
 chmod +x *.sh
 ./00-pre.sh
 ```
-**00-pre.sh 스크립트에 hostname으로 접속하는 스크립트가 포함은 되어있지만 실행 자체는 컨트롤러의 호스트네임이 프롬프트된 상태로 실행하여야 합니다.
+**00-pre.sh 스크립트에 hostname으로 접속하는 스크립트가 포함은 되어있지만**
 
-위의 내용을 지키지 않으시면, rabbitmq 에서 호스트네임으로 인한 에러가 발생합니다.**
+**실행 자체는 컨트롤러의 호스트네임이 프롬프트된 상태로 실행하여야 합니다.**
+
+**위의 내용을 지키지 않으시면, rabbitmq 에서 호스트네임으로 인한 에러가 발생합니다.**
 
 00-pre.sh contains "ssh $ctr_hostname" command but make sure prompt your controller's hostname.
 
