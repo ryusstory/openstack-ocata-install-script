@@ -38,7 +38,7 @@ openstack role add --domain heat --user-domain heat --user heat_domain_admin adm
 openstack role create heat_stack_owner
 openstack role create heat_stack_user
 
-yum install openstack-heat-api openstack-heat-api-cfn openstack-heat-engine
+yum install -y openstack-heat-api openstack-heat-api-cfn openstack-heat-engine
 
 sed -i "/\[database\]/a connection = mysql+pymysql://heat:$HEAT_DBPASS@$ctr_hostname/heat" /etc/heat/heat.conf
 sed -i "/\[DEFAULT\]/a transport_url = rabbit://openstack:$RABBIT_PASS@$ctr_hostname\nheat_metadata_server_url = http://$ctr_hostname:8000\nheat_waitcondition_server_url = http://$ctr_hostname:8000/v1/waitcondition\nstack_domain_admin = heat_domain_admin\nstack_domain_admin_password = $HEAT_DOMAIN_PASS\nstack_user_domain_name = heat" /etc/heat/heat.conf
