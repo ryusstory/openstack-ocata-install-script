@@ -38,7 +38,7 @@ EOE
 done
 
 if [ INSTALL_HEAT -eq 1 ]; then shfile=($(ls | grep -e "[0-9][0-9][-].*[.]sh" | sed 's/:.*//'))
-else if [ ] shfile=($(ls | grep -e "[0-9][0-9][-].*[.]sh" | grep -v "heat" | sed 's/:.*//'))
+else shfile=($(ls | grep -e "[0-9][0-9][-].*[.]sh" | grep -v "heat" | sed 's/:.*//'))
 fi
 if [ INIT_OPENSTACK -eq 1 ]; then unset "shfile[${#shfile[@]}-1]"; fi
 
