@@ -13,7 +13,7 @@ fi
 hostnamectl set-hostname ${HOST_name[0]}
 
 # 컴퓨터 서버 수에 따라 호스트네임 추가
-for i in `eval echo {0..$numofcompute}`
+for i in `eval echo {0..$COMPUTENODE}`
 do
     printf "%s\t%s\t%s \n" ${HOST_ip[$i]} ${HOST_name[$i]} >> /etc/hosts
 done
@@ -24,7 +24,7 @@ PKGS='expect'
 if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS
 else yum install -y $PKGS; fi
 
-for i in `eval echo {0..$numofcompute}`
+for i in `eval echo {0..$COMPUTENODE}`
 do
 /usr/bin/expect <<EOE
 set prompt "#"
@@ -43,7 +43,7 @@ fi
 if [ $INIT_OPENSTACK -eq 1 ]; then unset "shfile[${#shfile[@]}-1]"; fi
 
 # copy config file for script
-for i in `eval echo {0..$numofcompute}`
+for i in `eval echo {0..$COMPUTENODE}`
 do
     scp ./config.sh ${HOST_name[$i]}:
 done

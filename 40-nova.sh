@@ -73,14 +73,14 @@ systemctl enable openstack-nova-api.service openstack-nova-consoleauth.service o
 systemctl start openstack-nova-api.service openstack-nova-consoleauth.service openstack-nova-scheduler.service openstack-nova-conductor.service openstack-nova-novncproxy.service
 
 ########## Nova for compute
-if [ $numofcompute -eq 0 ]
+if [ $COMPUTENODE -eq 0 ]
 then
 PKGS='openstack-nova-compute'
 if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS; else yum install -y $PKGS; fi
 cp /etc/nova/nova.conf /etc/nova/backup2.nova.conf
 sed -i "/\[vnc\]/a novncproxy_base_url = http://controller:6080/vnc_auto.html" /etc/nova/nova.conf
 sed -i '/\[libvirt\]/a virt_type = qemu' /etc/nova/nova.conf
-elif [ $numofcompute -ge 1 ]
+elif [ $COMPUTENODE -ge 1 ]
 then
 cat config.sh > nova.sh
 echo 'NODE_IP=' >> nova.sh
@@ -101,7 +101,7 @@ sed -i '/\[libvirt\]/a virt_type = qemu' /etc/nova/nova.conf
 systemctl enable libvirtd.service openstack-nova-compute.service
 systemctl restart libvirtd.service openstack-nova-compute.service
 EOZ
-for i in `eval echo {1..$numofcompute}`
+for i in `eval echo {1..$COMPUTENODE}`
 do
 sed -i "/^NODE_IP/c\NODE_IP=\${HOST_ip[$i]}" nova.sh
 ssh ${HOST_name[$i]} 'bash -s' < nova.sh

@@ -68,7 +68,7 @@ systemctl restart neutron-server.service neutron-linuxbridge-agent.service neutr
 systemctl restart neutron-l3-agent.service
 
 ########## Neutron for compute
-if [ $numofcompute -eq 0 ]
+if [ $COMPUTENODE -eq 0 ]
 PKGS='ipset'
 if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS; else yum install -y $PKGS; fi
 cp /etc/neutron/neutron.conf /etc/neutron/backup2.neutron.conf
@@ -77,7 +77,7 @@ sed -i "/\[vxlan\]/a enable_vxlan = true\nlocal_ip = ${HOST_ip[0]}\nl2_populatio
 sed -i "/\[neutron\]/a url = http://${HOST_name[0]}:9696\nauth_url = http://${HOST_name[0]}:35357\nauth_type = password\nproject_domain_name = default\nuser_domain_name = default\nregion_name = RegionOne\nproject_name = service\nusername = neutron\npassword = $NEUTRON_PASS" /etc/nova/nova.conf
 systemctl restart openstack-nova-compute.service
 systemctl restart neutron-linuxbridge-agent.service
-elif [ $numofcompute -ge 1 ]
+elif [ $COMPUTENODE -ge 1 ]
 then
 cat config.sh > neutron.sh
 echo 'NODE_IP=' >> neutron.sh
@@ -101,7 +101,7 @@ systemctl restart openstack-nova-compute.service
 systemctl enable neutron-linuxbridge-agent.service
 systemctl restart neutron-linuxbridge-agent.service
 EOZ
-for i in `eval echo {1..$numofcompute}`
+for i in `eval echo {1..$COMPUTENODE}`
 do
 sed -i "/^NODE_IP/c\NODE_IP=\${HOST_ip[$i]}" neutron.sh
 ssh ${HOST_name[$i]} 'bash -s' < neutron.sh

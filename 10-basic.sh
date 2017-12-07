@@ -27,7 +27,7 @@ cat config.sh > basic.sh
 cat << "EOZ" >> basic.sh
 hostnamectl set-hostname $temp_hostname
 # 컴퓨터 서버 수에 따라 호스트네임 추가
-for i in `eval echo {0..$numofcompute}`
+for i in `eval echo {0..$COMPUTENODE}`
 do
     printf "%s\t%s\t%s \n" ${HOST_ip[$i]} ${HOST_name[$i]} >> /etc/hosts
 done
@@ -56,7 +56,7 @@ if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS; else yum install -y $PKGS;
 
 EOZ
 
-for i in `eval echo {1..$numofcompute}`
+for i in `eval echo {1..$COMPUTENODE}`
 do
     ssh ${HOST_name[$i]} 'bash -s' < basic.sh
 done
