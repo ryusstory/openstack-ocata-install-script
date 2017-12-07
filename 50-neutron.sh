@@ -69,6 +69,7 @@ systemctl restart neutron-l3-agent.service
 
 ########## Neutron for compute
 if [ $COMPUTENODE -eq 0 ]
+then 
 PKGS='ipset'
 if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS; else yum install -y $PKGS; fi
 cp /etc/neutron/neutron.conf /etc/neutron/backup2.neutron.conf

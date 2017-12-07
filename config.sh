@@ -1,12 +1,13 @@
 ## config.sh
 #https://docs.openstack.org/ocata/install-guide-rdo/overview.html#example-architecture
 #Silent yum option = yum -q 옵션
+#COMPUTENODE는 컴퓨터 서버 개수. 0=올인원, 1~2 = 컨트롤러1 + 컴퓨트n 개의 서버
 QUIETYUM=1
 INSTALL_HEAT=1
 INIT_OPENSTACK=0
 COMPUTENODE=0
 
-#COMPUTENODE는 컴퓨터 서버 개수. 0=올인원(현재 구현X), 1~2 = 컨트롤러1 + 컴퓨트n 개의 서버
+
 HOST_ip[0]=192.168.0.111
 HOST_name[0]=controller
 HOST_pass[0]=qwe123
