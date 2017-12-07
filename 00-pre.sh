@@ -37,11 +37,18 @@ $prompt
 EOE
 done
 
-if [ INSTALL_HEAT -eq 1 ]; then shfile=($(ls | grep -e "[0-9][0-9][-].*[.]sh" | sed 's/:.*//'))
+if [ $INSTALL_HEAT -eq 1 ]; then shfile=($(ls | grep -e "[0-9][0-9][-].*[.]sh" | sed 's/:.*//'))
 else shfile=($(ls | grep -e "[0-9][0-9][-].*[.]sh" | grep -v "heat" | sed 's/:.*//'))
 fi
-if [ INIT_OPENSTACK -eq 1 ]; then unset "shfile[${#shfile[@]}-1]"; fi
+if [ $INIT_OPENSTACK -eq 1 ]; then unset "shfile[${#shfile[@]}-1]"; fi
 
+# copy config file for script
+for i in `eval echo {0..$numofcompute}`
+do
+    scp ./config.sh ${HOST_name[$i]}:
+done
+
+# run scripts
 echo ${shfile[*]}
 for i in "${shfile[@]}"
 do
