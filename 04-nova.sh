@@ -46,7 +46,7 @@ sed -i "/\[DEFAULT\]/a my_ip = $ctr_ip\nenabled_apis = osapi_compute,metadata\nt
 sed -i "/\[api_database\]/a connection = mysql+pymysql://nova:$NOVA_DBPASS@$ctr_hostname/nova_api" /etc/nova/nova.conf
 sed -i "/\[database\]/a connection = mysql+pymysql://nova:$NOVA_DBPASS@$ctr_hostname/nova" /etc/nova/nova.conf
 sed -i '/\[api\]/a auth_strategy = keystone' /etc/nova/nova.conf
-sed -i "/\[keystone_authtoken\]/a auth_uri = http://controller:5000\nauth_url = http://$ctr_hostname:35357\nmemcached_servers = $ctr_hostname:11211\nauth_type = password\nproject_domain_name = default\nuser_domain_name = default\nproject_name = service\nusername = nova\npassword = $NOVA_PASS" /etc/nova/nova.conf
+sed -i "/\[keystone_authtoken\]/a auth_uri = http://$ctr_hostname:5000\nauth_url = http://$ctr_hostname:35357\nmemcached_servers = $ctr_hostname:11211\nauth_type = password\nproject_domain_name = default\nuser_domain_name = default\nproject_name = service\nusername = nova\npassword = $NOVA_PASS" /etc/nova/nova.conf
 sed -i "/\[vnc\]/a enabled = true\nvncserver_listen = \$my_ip\nvncserver_proxyclient_address = \$my_ip" /etc/nova/nova.conf
 sed -i "/\[glance\]/a api_servers = http://$ctr_hostname:9292" /etc/nova/nova.conf
 sed -i '/\[oslo_concurrency\]/a lock_path = /var/lib/nova/tmp' /etc/nova/nova.conf
@@ -74,6 +74,11 @@ systemctl enable openstack-nova-api.service openstack-nova-consoleauth.service o
 systemctl start openstack-nova-api.service openstack-nova-consoleauth.service openstack-nova-scheduler.service openstack-nova-conductor.service openstack-nova-novncproxy.service
 
 ########## Nova for compute
+if [ $numofcompute -eq 0 ]
+sed -i "/\[vnc\]/a novncproxy_base_url = http://controller:6080/vnc_auto.html" /etc/nova/nova.conf
+sed -i '/\[libvirt\]/a virt_type = qemu' /etc/nova/nova.conf
+elif [ $numofcompute -ge 1 ]
+then
 cat config.sh > nova.sh
 cat << "EOZ" >> nova.sh
 yum install -y openstack-nova-compute
@@ -91,17 +96,8 @@ sed -i '/\[libvirt\]/a virt_type = qemu' /etc/nova/nova.conf
 systemctl enable libvirtd.service openstack-nova-compute.service
 systemctl restart libvirtd.service openstack-nova-compute.service
 EOZ
-
-if [ $numofcompute -ge 1 ]
-then
-    sed -i "s/cpt_ip/cpt1_ip/g" nova.sh
-    ssh $cpt1_hostname 'bash -s' < nova.sh
-fi
-
-if [ $numofcompute -ge 2 ]
-then
-    sed -i "s/cpt_ip/cpt2_ip/g" nova.sh
-    ssh $cpt2_hostname 'bash -s' < nova.sh
+sed -i "s/cpt_ip/cpt${numofcompute}_ip/g" nova.sh
+ssh $cpt1_hostname 'bash -s' < nova.sh
 fi
 openstack hypervisor list
 su -s /bin/sh -c "nova-manage cell_v2 discover_hosts --verbose" nova
