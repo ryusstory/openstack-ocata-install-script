@@ -16,9 +16,9 @@ expect {
 EOE
 openstack role add --project service --user nova admin
 openstack service create --name nova --description "OpenStack Compute" compute
-openstack endpoint create --region RegionOne compute public http://$ctr_hostname:8774/v2.1
-openstack endpoint create --region RegionOne compute internal http://$ctr_hostname:8774/v2.1
-openstack endpoint create --region RegionOne compute admin http://$ctr_hostname:8774/v2.1
+openstack endpoint create --region RegionOne compute public http://${HOST_name[0]}:8774/v2.1
+openstack endpoint create --region RegionOne compute internal http://${HOST_name[0]}:8774/v2.1
+openstack endpoint create --region RegionOne compute admin http://${HOST_name[0]}:8774/v2.1
 
 /usr/bin/expect <<EOE
 set prompt "#"
@@ -31,26 +31,25 @@ expect {
 EOE
 openstack role add --project service --user placement admin
 openstack service create --name placement --description "Placement API" placement
-openstack endpoint create --region RegionOne placement public http://$ctr_hostname:8778
-openstack endpoint create --region RegionOne placement internal http://$ctr_hostname:8778
-openstack endpoint create --region RegionOne placement admin http://$ctr_hostname:8778
-yum install -y openstack-nova-api openstack-nova-conductor openstack-nova-console openstack-nova-novncproxy openstack-nova-scheduler openstack-nova-placement-api
-yum install openstack-nova-api openstack-nova-conductor openstack-nova-console openstack-nova-novncproxy openstack-nova-scheduler openstack-nova-placement-api
+openstack endpoint create --region RegionOne placement public http://${HOST_name[0]}:8778
+openstack endpoint create --region RegionOne placement internal http://${HOST_name[0]}:8778
+openstack endpoint create --region RegionOne placement admin http://${HOST_name[0]}:8778
+PKGS='openstack-nova-api openstack-nova-conductor openstack-nova-console openstack-nova-novncproxy openstack-nova-scheduler openstack-nova-placement-api'
+if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS; else yum install -y $PKGS; fi
 cp /etc/nova/nova.conf /etc/nova/backup.nova.conf
 sed -i '/^#/d' /etc/nova/nova.conf
 sed -i '/^$/d' /etc/nova/nova.conf
-
 # !!! 뒤의 ratio는 overcommit을 위한 컨피그입니다. 설치 가이드에는 해당 내용이 없습니다.
 # https://docs.openstack.org/arch-design/design-compute/design-compute-overcommit.html
-sed -i "/\[DEFAULT\]/a my_ip = $ctr_ip\nenabled_apis = osapi_compute,metadata\ntransport_url = rabbit://openstack:$RABBIT_PASS@$ctr_hostname\nuse_neutron = True\nfirewall_driver = nova.virt.firewall.NoopFirewallDriver\ncpu_allocation_ratio = 16.0\ndisk_allocation_ratio = 2.0\nram_allocation_ratio = 2.0" /etc/nova/nova.conf
-sed -i "/\[api_database\]/a connection = mysql+pymysql://nova:$NOVA_DBPASS@$ctr_hostname/nova_api" /etc/nova/nova.conf
-sed -i "/\[database\]/a connection = mysql+pymysql://nova:$NOVA_DBPASS@$ctr_hostname/nova" /etc/nova/nova.conf
+sed -i "/\[DEFAULT\]/a my_ip = ${HOST_ip[0]}\nenabled_apis = osapi_compute,metadata\ntransport_url = rabbit://openstack:$RABBIT_PASS@${HOST_name[0]}\nuse_neutron = True\nfirewall_driver = nova.virt.firewall.NoopFirewallDriver\ncpu_allocation_ratio = 16.0\ndisk_allocation_ratio = 2.0\nram_allocation_ratio = 2.0" /etc/nova/nova.conf
+sed -i "/\[api_database\]/a connection = mysql+pymysql://nova:$NOVA_DBPASS@${HOST_name[0]}/nova_api" /etc/nova/nova.conf
+sed -i "/\[database\]/a connection = mysql+pymysql://nova:$NOVA_DBPASS@${HOST_name[0]}/nova" /etc/nova/nova.conf
 sed -i '/\[api\]/a auth_strategy = keystone' /etc/nova/nova.conf
-sed -i "/\[keystone_authtoken\]/a auth_uri = http://$ctr_hostname:5000\nauth_url = http://$ctr_hostname:35357\nmemcached_servers = $ctr_hostname:11211\nauth_type = password\nproject_domain_name = default\nuser_domain_name = default\nproject_name = service\nusername = nova\npassword = $NOVA_PASS" /etc/nova/nova.conf
+sed -i "/\[keystone_authtoken\]/a auth_uri = http://${HOST_name[0]}:5000\nauth_url = http://${HOST_name[0]}:35357\nmemcached_servers = ${HOST_name[0]}:11211\nauth_type = password\nproject_domain_name = default\nuser_domain_name = default\nproject_name = service\nusername = nova\npassword = $NOVA_PASS" /etc/nova/nova.conf
 sed -i "/\[vnc\]/a enabled = true\nvncserver_listen = \$my_ip\nvncserver_proxyclient_address = \$my_ip" /etc/nova/nova.conf
-sed -i "/\[glance\]/a api_servers = http://$ctr_hostname:9292" /etc/nova/nova.conf
+sed -i "/\[glance\]/a api_servers = http://${HOST_name[0]}:9292" /etc/nova/nova.conf
 sed -i '/\[oslo_concurrency\]/a lock_path = /var/lib/nova/tmp' /etc/nova/nova.conf
-sed -i "/\[placement\]/a os_region_name = RegionOne\nproject_domain_name = Default\nproject_name = service\nauth_type = password\nuser_domain_name = Default\nauth_url = http://$ctr_hostname:35357/v3\nusername = placement\npassword = $PLACEMENT_PASS" /etc/nova/nova.conf
+sed -i "/\[placement\]/a os_region_name = RegionOne\nproject_domain_name = Default\nproject_name = service\nauth_type = password\nuser_domain_name = Default\nauth_url = http://${HOST_name[0]}:35357/v3\nusername = placement\npassword = $PLACEMENT_PASS" /etc/nova/nova.conf
 
 echo "
 <Directory /usr/bin>
@@ -75,29 +74,38 @@ systemctl start openstack-nova-api.service openstack-nova-consoleauth.service op
 
 ########## Nova for compute
 if [ $numofcompute -eq 0 ]
+then
+PKGS='openstack-nova-compute'
+if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS; else yum install -y $PKGS; fi
+cp /etc/nova/nova.conf /etc/nova/backup2.nova.conf
 sed -i "/\[vnc\]/a novncproxy_base_url = http://controller:6080/vnc_auto.html" /etc/nova/nova.conf
 sed -i '/\[libvirt\]/a virt_type = qemu' /etc/nova/nova.conf
 elif [ $numofcompute -ge 1 ]
 then
 cat config.sh > nova.sh
+echo 'NODE_IP=' >> nova.sh
 cat << "EOZ" >> nova.sh
-yum install -y openstack-nova-compute
+PKGS='openstack-nova-compute'
+if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS; else yum install -y $PKGS; fi
 cp /etc/nova/nova.conf /etc/nova/backup.nova.conf
 sed -i '/^#/d' /etc/nova/nova.conf
 sed -i '/^$/d' /etc/nova/nova.conf
-sed -i "/\[DEFAULT\]/a my_ip = $cpt_ip\nenabled_apis = osapi_compute,metadata\ntransport_url = rabbit://openstack:$RABBIT_PASS@$ctr_hostname\nuse_neutron = True\nfirewall_driver = nova.virt.firewall.NoopFirewallDriver" /etc/nova/nova.conf
+sed -i "/\[DEFAULT\]/a my_ip = ${NODE_IP}\nenabled_apis = osapi_compute,metadata\ntransport_url = rabbit://openstack:$RABBIT_PASS@${HOST_name[0]}\nuse_neutron = True\nfirewall_driver = nova.virt.firewall.NoopFirewallDriver" /etc/nova/nova.conf
 sed -i '/\[api\]/a auth_strategy = keystone' /etc/nova/nova.conf
-sed -i "/\[keystone_authtoken\]/a auth_uri = http://$ctr_hostname:5000\nauth_url = http://$ctr_hostname:35357\nmemcached_servers = $ctr_hostname:11211\nauth_type = password\nproject_domain_name = default\nuser_domain_name = default\nproject_name = service\nusername = nova\npassword = $NOVA_PASS" /etc/nova/nova.conf
+sed -i "/\[keystone_authtoken\]/a auth_uri = http://${HOST_name[0]}:5000\nauth_url = http://${HOST_name[0]}:35357\nmemcached_servers = ${HOST_name[0]}:11211\nauth_type = password\nproject_domain_name = default\nuser_domain_name = default\nproject_name = service\nusername = nova\npassword = $NOVA_PASS" /etc/nova/nova.conf
 sed -i "/\[vnc\]/a enabled = True\nvncserver_listen = 0.0.0.0\nvncserver_proxyclient_address = \$my_ip\nnovncproxy_base_url = http://controller:6080/vnc_auto.html" /etc/nova/nova.conf
-sed -i "/\[glance\]/a api_servers = http://$ctr_hostname:9292" /etc/nova/nova.conf
+sed -i "/\[glance\]/a api_servers = http://${HOST_name[0]}:9292" /etc/nova/nova.conf
 sed -i '/\[oslo_concurrency\]/a lock_path = /var/lib/nova/tmp' /etc/nova/nova.conf
-sed -i "/\[placement\]/a os_region_name = RegionOne\nproject_domain_name = Default\nproject_name = service\nauth_type = password\nuser_domain_name = Default\nauth_url = http://$ctr_hostname:35357/v3\nusername = placement\npassword = $PLACEMENT_PASS" /etc/nova/nova.conf
+sed -i "/\[placement\]/a os_region_name = RegionOne\nproject_domain_name = Default\nproject_name = service\nauth_type = password\nuser_domain_name = Default\nauth_url = http://${HOST_name[0]}:35357/v3\nusername = placement\npassword = $PLACEMENT_PASS" /etc/nova/nova.conf
 sed -i '/\[libvirt\]/a virt_type = qemu' /etc/nova/nova.conf
 systemctl enable libvirtd.service openstack-nova-compute.service
 systemctl restart libvirtd.service openstack-nova-compute.service
 EOZ
-sed -i "s/cpt_ip/cpt${numofcompute}_ip/g" nova.sh
-ssh $cpt1_hostname 'bash -s' < nova.sh
+for i in `eval echo {1..$numofcompute}`
+do
+sed -i "/^NODE_IP/c\NODE_IP=\${HOST_ip[$i]}" nova.sh
+ssh ${HOST_name[$i]} 'bash -s' < nova.sh
+done
 fi
 openstack hypervisor list
 su -s /bin/sh -c "nova-manage cell_v2 discover_hosts --verbose" nova

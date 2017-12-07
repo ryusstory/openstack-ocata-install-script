@@ -2,65 +2,72 @@
 ## 01-basic.sh
 source ./config.sh
 ## disable firewall
-yum remove -y firewalld
+yum remove -q -y firewalld
 iptables -F
 ## NTP Installation
 ## 테스트 스크립트 편의상 0.0.0.0/0 으로 할당하였습니다. 원래는 해당 서브넷만 주셔야 합니다.
-yum install -y chrony
+PKGS='chrony'
+if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS; else yum install -y $PKGS; fi
 echo "allow 0.0.0.0/0" >> /etc/chrony.conf
 systemctl enable chronyd.service
 systemctl start chronyd.service
 ## Add Repository
-yum install -y centos-release-openstack-ocata
+PKGS='centos-release-openstack-ocata'
+if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS; else yum install -y $PKGS; fi
 ## Upgrade Package
-yum upgrade -y
+if [ $QUIETYUM -eq 1 ]; then yum upgrade -q -y $PKGS; else yum upgrade -y $PKGS; fi
 ## Install openstack client
-yum install -y python-openstackclient
+PKGS='python-openstackclient'
+if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS; else yum install -y $PKGS; fi
 ## Install Selinux-policy
-yum install -y openstack-selinux
+PKGS='openstack-selinux'
+if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS; else yum install -y $PKGS; fi
 
 cat config.sh > basic.sh
 cat << "EOZ" >> basic.sh
-hostnamectl set-hostname $cpt1_hostname
+hostnamectl set-hostname $temp_hostname
 # 컴퓨터 서버 수에 따라 호스트네임 추가
-echo "$ctr_ip $ctr_hostname" >> /etc/hosts
-if [ $numofcompute -ge 1 ] ;then echo "$cpt1_ip $cpt1_hostname" >> /etc/hosts;fi
-if [ $numofcompute -ge 2 ] ;then echo "$cpt2_ip $cpt2_hostname" >> /etc/hosts;fi
+for i in `eval echo {0..$numofcompute}`
+do
+    printf "%s\t%s\t%s \n" ${HOST_ip[$i]} ${HOST_name[$i]} >> /etc/hosts
+done
 #chrony 설치
-yum install -y chrony
+PKGS='chrony'
+if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS; else yum install -y $PKGS; fi
 # chrony 설정
 sed -i "/^server/ s/^#*/#/" /etc/chrony.conf
-echo "server $ctr_hostname iburst" >> /etc/chrony.conf
+echo "server ${HOST_ip[0]} iburst" >> /etc/chrony.conf
 systemctl enable chronyd.service
 systemctl start chronyd.service
 # remove firewalld
-yum remove -y firewalld
+yum remove -q -y firewalld
 iptables -F
 ## Add Repository
-yum install -y centos-release-openstack-ocata
+PKGS='centos-release-openstack-ocata'
+if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS; else yum install -y $PKGS; fi
 ## Upgrade Package
-yum upgrade -y
+if [ $QUIETYUM -eq 1 ]; then yum upgrade -q -y $PKGS; else yum upgrade -y $PKGS; fi
 ## Install openstack client
-yum install -y python-openstackclient
+PKGS='python-openstackclient'
+if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS; else yum install -y $PKGS; fi
 ## Install Selinux-policy
-yum install -y openstack-selinux
+PKGS='openstack-selinux'
+if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS; else yum install -y $PKGS; fi
+
 EOZ
 
-if [ $numofcompute -ge 1 ]
-then
-    ssh $cpt1_hostname 'bash -s' < basic.sh
-fi
-if [ $numofcompute -ge 2 ]
-then
-    ssh $cpt2_hostname 'bash -s' < basic.sh
-fi
+for i in `eval echo {1..$numofcompute}`
+do
+    ssh ${HOST_name[$i]} 'bash -s' < basic.sh
+done
 
 ########## Basic Openstack config for controller
 ## Install Mariadb
-yum install -y mariadb mariadb-server python2-PyMySQL
+PKGS='mariadb mariadb-server python2-PyMySQL'
+if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS; else yum install -y $PKGS; fi
 echo "
 [mysqld]
-bind-address = $ctr_ip
+bind-address = ${HOST_name[0]}
 default-storage-engine = innodb
 innodb_file_per_table = on
 max_connections = 4096
@@ -75,15 +82,17 @@ echo -e "\n\n$DBPASS\n$DBPASS\ny\nn\ny\ny\n " | /usr/bin/mysql_secure_installati
 mysql -u root -p$DBPASS -e "set global max_connections = 4096;"
 
 ## Install RABBIT MQ 
-yum install -y rabbitmq-server
+PKGS='rabbitmq-server'
+if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS; else yum install -y $PKGS; fi
 systemctl enable rabbitmq-server
 systemctl start rabbitmq-server
 rabbitmqctl add_user openstack $RABBIT_PASS
 rabbitmqctl set_permissions openstack ".*" ".*" ".*"
 
 ## Install memcached
-yum install -y memcached python-memcached
-sed -i "s/::1/::1,$ctr_hostname/g" /etc/sysconfig/memcached
+PKGS='memcached python-memcached'
+if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS; else yum install -y $PKGS; fi
+sed -i "s/::1/::1,${HOST_name[0]}/g" /etc/sysconfig/memcached
 systemctl enable memcached.service
 systemctl start memcached.service
 

@@ -10,76 +10,43 @@ else
     exit 1
 fi
 ## Hostname
-hostnamectl set-hostname $ctr_hostname
-# daum repo
-cat << "EOZ" >> daumrepo.sh
-tar cvzf /etc/yum.repos.d/original.tar.gz /etc/yum.repos.d/*.repo
-rm -rf /etc/yum.repos.d/*.repo
-echo '[base]
-name=CentOS-$releasever - Base
-baseurl=http://ftp.daumkakao.com/centos/$releasever/os/$basearch/
-gpgcheck=0 
-[updates]
-name=CentOS-$releasever - Updates
-baseurl=http://ftp.daumkakao.com/centos/$releasever/updates/$basearch/
-gpgcheck=0
-[extras]
-name=CentOS-$releasever - Extras
-baseurl=http://ftp.daumkakao.com/centos/$releasever/extras/$basearch/
-gpgcheck=0' > /etc/yum.repos.d/Daum.repo
-yum clean all && yum repolist
-EOZ
+hostnamectl set-hostname ${HOST_name[0]}
 
 # 컴퓨터 서버 수에 따라 호스트네임 추가
-yum install -y expect
-echo "$ctr_ip $ctr_hostname" >> /etc/hosts
-if [ $numofcompute -ge 1 ] ;then echo "$cpt1_ip $cpt1_hostname" >> /etc/hosts;fi
-if [ $numofcompute -ge 2 ] ;then echo "$cpt2_ip $cpt2_hostname" >> /etc/hosts;fi
+for i in `eval echo {0..$numofcompute}`
+do
+    printf "%s\t%s\t%s \n" ${HOST_ip[$i]} ${HOST_name[$i]} >> /etc/hosts
+done
 
 ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
+
+PKGS='expect'
+if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS
+else yum install -y $PKGS; fi
+
+for i in `eval echo {0..$numofcompute}`
+do
 /usr/bin/expect <<EOE
 set prompt "#"
-spawn bash -c "ssh-copy-id -f $ctr_hostname"
+spawn bash -c "ssh-copy-id -f ${HOST_name[$i]}"
 expect {
 "yes/no" { send "yes\r"; exp_continue}
--nocase "password" {send "$ctr_pass\r"; exp_continue }
+-nocase "password" {send "${HOST_pass[$i]}\r"; exp_continue }
 $prompt
 }
 EOE
+done
 
-if [ $numofcompute -ge 1 ]
-then
-/usr/bin/expect <<EOE
-set prompt "#"
-spawn bash -c "ssh-copy-id -f $cpt1_hostname"
-expect {
-"yes/no" { send "yes\r"; exp_continue}
--nocase "password" {send "$cpt1_pass\r"; exp_continue }
-$prompt
-}
-EOE
+if [ INSTALL_HEAT -eq 1 ]; then shfile=($(ls | grep -e "[0-9][0-9][-].*[.]sh" | sed 's/:.*//'))
+else if [ ] shfile=($(ls | grep -e "[0-9][0-9][-].*[.]sh" | grep -v "heat" | sed 's/:.*//'))
 fi
+if [ INIT_OPENSTACK -eq 1 ]; then unset "shfile[${#shfile[@]}-1]"; fi
 
-if [ $numofcompute -ge 2 ]
-then
-/usr/bin/expect <<EOE
-set prompt "#"
-spawn bash -c "ssh-copy-id -f $cpt2_hostname"
-expect {
-"yes/no" { send "yes\r"; exp_continue}
--nocase "password" {send "$cpt2_pass\r"; exp_continue }
-$prompt
-}
-EOE
-fi
+echo ${shfile[*]}
+for i in "${shfile[@]}"
+do
+ssh ${HOST_name[0]} 'bash -s' < $i
+done
 
-if [ $numofcompute -ge 1 ]
-then
-    ssh $cpt1_hostname 'bash -s' < daumrepo.sh
-fi
-if [ $numofcompute -ge 2 ]
-then
-    ssh $cpt2_hostname 'bash -s' < daumrepo.sh
-fi
 
-ssh $ctr_hostname
+

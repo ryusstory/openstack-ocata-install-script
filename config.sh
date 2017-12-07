@@ -1,18 +1,23 @@
 ## config.sh
 #https://docs.openstack.org/ocata/install-guide-rdo/overview.html#example-architecture
+#Silent yum option = yum -q 옵션
+QUIETYUM=1
+INSTALL_HEAT=1
+INIT_OPENSTACK=1
+
 #numofcompute는 컴퓨터 서버 개수. 0=올인원(현재 구현X), 1~2 = 컨트롤러1 + 컴퓨트n 개의 서버
 numofcompute=1
-ctr_ip=192.168.0.111
-ctr_hostname=controller
-ctr_pass=qwe123
+HOST_ip[0]=192.168.0.111
+HOST_name[0]=controller
+HOST_pass[0]=qwe123
 
-cpt1_ip=192.168.0.121
-cpt1_hostname=compute1
-cpt1_pass=qwe123
+HOST_ip[1]=192.168.0.121
+HOST_name[1]=compute1
+HOST_pass[1]=qwe123
 
-cpt2_ip=192.168.0.122
-cpt2_hostname=compute2
-cpt2_pass=qwe123
+HOST_ip[2]=192.168.0.122
+HOST_name[2]=compute2
+HOST_pass[2]=qwe123
 
 #https://docs.openstack.org/ocata/install-guide-rdo/environment-security.html
 DBPASS=DBPASS

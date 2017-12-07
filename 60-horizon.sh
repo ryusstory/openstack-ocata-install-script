@@ -1,13 +1,14 @@
 #!/bin/bash
 source ./config.sh
 . ~/admin-openrc
-yum install -y openstack-dashboard
+PKGS='openstack-dashboard'
+if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS; else yum install -y $PKGS; fi
 cp /etc/openstack-dashboard/local_settings /etc/openstack-dashboard/backup.local_settings
 sed -i '/^#/d' /etc/openstack-dashboard/local_settings
 sed -i '/^$/d' /etc/openstack-dashboard/local_settings
-sed -i "s/OPENSTACK_HOST = '127.0.0.1'/OPENSTACK_HOST = '$ctr_hostname'/g" /etc/openstack-dashboard/local_settings
+sed -i "s/OPENSTACK_HOST = '127.0.0.1'/OPENSTACK_HOST = '${HOST_name[0]}'/g" /etc/openstack-dashboard/local_settings
 sed -i "/ALLOWED_HOSTS/c\ALLOWED_HOSTS = ['*']" /etc/openstack-dashboard/local_settings
-sed -i "/django.core.cache.backends.memcached.MemcachedCache,/a         'LOCATION': '$ctr_hostname:11211','" /etc/openstack-dashboard/local_settings
+sed -i "/django.core.cache.backends.memcached.MemcachedCache,/a         'LOCATION': '${HOST_name[0]}:11211','" /etc/openstack-dashboard/local_settings
 echo "SESSION_ENGINE = 'django.contrib.sessions.backends.cache'" >> /etc/openstack-dashboard/local_settings
 sed -i '/OPENSTACK_KEYSTONE_URL/c\OPENSTACK_KEYSTONE_URL = "http://%s:5000/v3" % OPENSTACK_HOST' /etc/openstack-dashboard/local_settings
 echo "OPENSTACK_KEYSTONE_MULTIDOMAIN_SUPPORT = True" >> /etc/openstack-dashboard/local_settings
