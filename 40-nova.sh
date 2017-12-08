@@ -78,7 +78,7 @@ then
 PKGS='openstack-nova-compute'
 if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS; else yum install -y $PKGS; fi
 cp /etc/nova/nova.conf /etc/nova/backup2.nova.conf
-sed -i "/\[vnc\]/a novncproxy_base_url = http://controller:6080/vnc_auto.html" /etc/nova/nova.conf
+sed -i "/\[vnc\]/a novncproxy_base_url = http://${HOST_ip[0]}:6080/vnc_auto.html" /etc/nova/nova.conf
 sed -i '/\[libvirt\]/a virt_type = qemu' /etc/nova/nova.conf
 systemctl enable libvirtd.service openstack-nova-compute.service
 systemctl restart libvirtd.service openstack-nova-compute.service
@@ -96,7 +96,7 @@ sed -i '/^$/d' /etc/nova/nova.conf
 sed -i "/\[DEFAULT\]/a my_ip = ${NODE_IP}\nenabled_apis = osapi_compute,metadata\ntransport_url = rabbit://openstack:$RABBIT_PASS@${HOST_name[0]}\nuse_neutron = True\nfirewall_driver = nova.virt.firewall.NoopFirewallDriver" /etc/nova/nova.conf
 sed -i '/\[api\]/a auth_strategy = keystone' /etc/nova/nova.conf
 sed -i "/\[keystone_authtoken\]/a auth_uri = http://${HOST_name[0]}:5000\nauth_url = http://${HOST_name[0]}:35357\nmemcached_servers = ${HOST_name[0]}:11211\nauth_type = password\nproject_domain_name = default\nuser_domain_name = default\nproject_name = service\nusername = nova\npassword = $NOVA_PASS" /etc/nova/nova.conf
-sed -i "/\[vnc\]/a enabled = True\nvncserver_listen = 0.0.0.0\nvncserver_proxyclient_address = \$my_ip\nnovncproxy_base_url = http://controller:6080/vnc_auto.html" /etc/nova/nova.conf
+sed -i "/\[vnc\]/a enabled = True\nvncserver_listen = 0.0.0.0\nvncserver_proxyclient_address = \$my_ip\nnovncproxy_base_url = http://${HOST_ip[0]}:6080/vnc_auto.html" /etc/nova/nova.conf
 sed -i "/\[glance\]/a api_servers = http://${HOST_name[0]}:9292" /etc/nova/nova.conf
 sed -i '/\[oslo_concurrency\]/a lock_path = /var/lib/nova/tmp' /etc/nova/nova.conf
 sed -i "/\[placement\]/a os_region_name = RegionOne\nproject_domain_name = Default\nproject_name = service\nauth_type = password\nuser_domain_name = Default\nauth_url = http://${HOST_name[0]}:35357/v3\nusername = placement\npassword = $PLACEMENT_PASS" /etc/nova/nova.conf
