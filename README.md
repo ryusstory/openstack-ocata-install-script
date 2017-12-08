@@ -45,17 +45,19 @@ HEAT 설치 여부입니다. 1 이면 설치 스크립트에 heat 설치가 들�
 
 #### Case 1
 
-- [x] 호스트 서버 1 ( All-In-One )
-- [ ] 호스트 서버 2+
+한대 서버에, 히트를 제외하고 yum 출력을 보지 않고 설치를 한 뒤 초기화 스크립트까지 실행.
+
 - [x] Yum 최소 출력 (quiet 옵션)
-- [x] HEAT 설치
+- [ ] HEAT 설치
 - [x] 초기화 (Launch a instance)
+- [x] 설치 서버 1 ( All-In-One )
+- [ ] 설치 서버 2+
 
 만약, 위와 같은 옵션으로 스크립트를 실행하려면 아래 컨피그 처럼 설정하시면 됩니다.
 
 ```
 QUIETYUM=1
-INSTALL_HEAT=1
+INSTALL_HEAT=0
 INIT_OPENSTACK=0
 COMPUTENODE=0
 
@@ -68,11 +70,13 @@ HOST_pass[0]=qwe123
 
 #### Case 2
 
+세대 서버(컨트롤러1,컴퓨트2)에, 히트를 포함해서 yum 출력을 보면서 설치를 한 뒤 초기화 스크립트는 미실행.
+
+- [ ] Yum 최소 출력 (quiet 옵션)
+- [x] HEAT 설치
+- [ ] 초기화 (Launch a instance)
 - [ ] 호스트 서버 1 ( All-In-One )
 - [x] 호스트 서버 2+
-- [x] Yum 최소 출력 (quiet 옵션)
-- [x] HEAT 설치
-- [x] 초기화 (Launch a instance)
 
 만약, 위와 같은 옵션으로 스크립트를 실행하려면 아래 컨피그 처럼 설정하시면 됩니다.
 
