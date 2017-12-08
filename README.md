@@ -50,8 +50,8 @@ HEAT 설치 여부입니다. 1 이면 설치 스크립트에 heat 설치가 들�
 - [x] Yum 최소 출력 (quiet 옵션)
 - [ ] HEAT 설치
 - [x] 초기화 (Launch a instance)
-- [x] 설치 서버 1 ( All-In-One )
-- [ ] 설치 서버 2+
+- [x] 별도 Compute 서버 0 ( controller 서버에 All-In-One 으로 설치)
+- [ ] 별도 Compute 서버 1+
 
 만약, 위와 같은 옵션으로 스크립트를 실행하려면 아래 컨피그 처럼 설정하시면 됩니다.
 
@@ -75,8 +75,8 @@ HOST_pass[0]=qwe123
 - [ ] Yum 최소 출력 (quiet 옵션)
 - [x] HEAT 설치
 - [ ] 초기화 (Launch a instance)
-- [ ] 호스트 서버 1 ( All-In-One )
-- [x] 호스트 서버 2+
+- [ ] 별도 Compute 서버 0 ( controller 서버에 All-In-One 으로 설치)
+- [x] 별도 Compute 서버 1+
 
 만약, 위와 같은 옵션으로 스크립트를 실행하려면 아래 컨피그 처럼 설정하시면 됩니다.
 
