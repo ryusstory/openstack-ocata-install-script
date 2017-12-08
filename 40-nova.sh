@@ -80,6 +80,9 @@ if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS; else yum install -y $PKGS;
 cp /etc/nova/nova.conf /etc/nova/backup2.nova.conf
 sed -i "/\[vnc\]/a novncproxy_base_url = http://controller:6080/vnc_auto.html" /etc/nova/nova.conf
 sed -i '/\[libvirt\]/a virt_type = qemu' /etc/nova/nova.conf
+systemctl enable libvirtd.service openstack-nova-compute.service
+systemctl restart libvirtd.service openstack-nova-compute.service
+
 elif [ $COMPUTENODE -ge 1 ]
 then
 cat config.sh > nova.sh
