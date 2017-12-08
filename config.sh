@@ -7,16 +7,15 @@ INSTALL_HEAT=1
 INIT_OPENSTACK=0
 COMPUTENODE=0
 
-
-HOST_ip[0]=192.168.0.111
+HOST_ip[0]=192.168.0.11
 HOST_name[0]=controller
 HOST_pass[0]=qwe123
 
-HOST_ip[1]=192.168.0.121
+HOST_ip[1]=192.168.0.21
 HOST_name[1]=compute1
 HOST_pass[1]=qwe123
 
-HOST_ip[2]=192.168.0.122
+HOST_ip[2]=192.168.0.22
 HOST_name[2]=compute2
 HOST_pass[2]=qwe123
 
