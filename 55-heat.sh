@@ -52,7 +52,8 @@ sed -i "/\[trustee\]/a auth_type = password\nauth_url = http://${HOST_name[0]}:3
 sed -i "/\[clients_keystone\]/a auth_uri = http://${HOST_name[0]}:35357" /etc/heat/heat.conf
 sed -i "/\[ec2authtoken\]/a auth_uri = http://${HOST_name[0]}:5000" /etc/heat/heat.conf
 #sed -i "/\[keystone_authtoken\]/a auth_uri = http://${HOST_name[0]}:5000\nauth_url = http://${HOST_name[0]}:35357\nmemcached_servers = ${HOST_name[0]}:11211\nauth_type = password\nproject_domain_name = default\nuser_domain_name = default\nproject_name = service\nusername = heat\npassword = $HEAT_PASS" /etc/heat/heat.conf
-echo "auth_uri = http://${HOST_name[0]}:5000
+echo "[keystone_authtoken]
+auth_uri = http://${HOST_name[0]}:5000
 auth_url = http://${HOST_name[0]}:35357
 memcached_servers = ${HOST_name[0]}:11211
 auth_type = password
