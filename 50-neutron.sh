@@ -102,7 +102,7 @@ systemctl restart openstack-nova-compute.service
 systemctl enable neutron-linuxbridge-agent.service
 systemctl restart neutron-linuxbridge-agent.service
 EOZ
-for i in `eval echo {1..$COMPUTENODE}`
+for ((i = 1; i <= $COMPUTENODE; i++))
 do
 sed -i "/^NODE_IP/c\NODE_IP=\${HOST_ip[$i]}" neutron.sh
 ssh ${HOST_name[$i]} 'bash -s' < neutron.sh

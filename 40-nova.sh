@@ -104,7 +104,7 @@ sed -i '/\[libvirt\]/a virt_type = kvm' /etc/nova/nova.conf
 systemctl enable libvirtd.service openstack-nova-compute.service
 systemctl restart libvirtd.service openstack-nova-compute.service
 EOZ
-for i in `eval echo {1..$COMPUTENODE}`
+for ((i = 1; i <= $COMPUTENODE; i++))
 do
 sed -i "/^NODE_IP/c\NODE_IP=\${HOST_ip[$i]}" nova.sh
 ssh ${HOST_name[$i]} 'bash -s' < nova.sh
