@@ -79,7 +79,7 @@ PKGS='openstack-nova-compute'
 if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS; else yum install -y $PKGS; fi
 cp /etc/nova/nova.conf /etc/nova/backup2.nova.conf
 sed -i "/\[vnc\]/a novncproxy_base_url = http://${HOST_ip[0]}:6080/vnc_auto.html" /etc/nova/nova.conf
-sed -i '/\[libvirt\]/a virt_type = qemu' /etc/nova/nova.conf
+sed -i '/\[libvirt\]/a virt_type = kvm' /etc/nova/nova.conf
 systemctl enable libvirtd.service openstack-nova-compute.service
 systemctl restart libvirtd.service openstack-nova-compute.service
 
@@ -100,7 +100,7 @@ sed -i "/\[vnc\]/a enabled = True\nvncserver_listen = 0.0.0.0\nvncserver_proxycl
 sed -i "/\[glance\]/a api_servers = http://${HOST_name[0]}:9292" /etc/nova/nova.conf
 sed -i '/\[oslo_concurrency\]/a lock_path = /var/lib/nova/tmp' /etc/nova/nova.conf
 sed -i "/\[placement\]/a os_region_name = RegionOne\nproject_domain_name = Default\nproject_name = service\nauth_type = password\nuser_domain_name = Default\nauth_url = http://${HOST_name[0]}:35357/v3\nusername = placement\npassword = $PLACEMENT_PASS" /etc/nova/nova.conf
-sed -i '/\[libvirt\]/a virt_type = qemu' /etc/nova/nova.conf
+sed -i '/\[libvirt\]/a virt_type = kvm' /etc/nova/nova.conf
 systemctl enable libvirtd.service openstack-nova-compute.service
 systemctl restart libvirtd.service openstack-nova-compute.service
 EOZ
