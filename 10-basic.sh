@@ -76,10 +76,12 @@ character-set-server = utf8
 symbolic-links=0
 !includedir /etc/my.cnf.d
 " > /etc/my.cnf
+sed -i "/\[Service\]/a LimitNOFILE=4096" /usr/lib/systemd/system/mariadb.service
+systemctl daemon-reload
 systemctl enable mariadb.service
 systemctl start mariadb.service
 echo -e "\n\n$DBPASS\n$DBPASS\ny\nn\ny\ny\n " | /usr/bin/mysql_secure_installation
-mysql -u root -p$DBPASS -e "set global max_connections = 4096;"
+#mysql -u root -p$DBPASS -e "set global max_connections = 4096;"
 
 ## Install RABBIT MQ 
 PKGS='rabbitmq-server'
