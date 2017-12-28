@@ -28,7 +28,7 @@ for ((i = 0; i <= $COMPUTENODE; i++))
 do
 /usr/bin/expect <<EOE
 set prompt "#"
-spawn bash -c "ssh-copy-id -f ${HOST_name[$i]}"
+spawn bash -c "ssh-copy-id ${HOST_name[$i]}"
 expect {
 "yes/no" { send "yes\r"; exp_continue}
 -nocase "password" {send "${HOST_pass[$i]}\r"; exp_continue }
