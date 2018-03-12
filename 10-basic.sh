@@ -66,7 +66,7 @@ PKGS='mariadb mariadb-server python2-PyMySQL'
 if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS; else yum install -y $PKGS; fi
 echo "
 [mysqld]
-bind-address = ${HOST_name[0]}
+bind-address = ${HOST_ip[0]}
 default-storage-engine = innodb
 innodb_file_per_table = on
 max_connections = 4096

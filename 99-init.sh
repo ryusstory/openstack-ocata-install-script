@@ -5,19 +5,25 @@
 # INTERNET_SUBNET=$(ip route get 8.8.8.8 | awk -F' ' '{print $NF;exit}' | awk -F. '{print $(NF-3)"."$(NF-2)"."$(NF-1)".0";exit}')
 # INTERNET_NETWORK=$(ip route get 8.8.8.8 | awk -F' ' '{print $NF;exit}' | awk -F. '{print $(NF-3)"."$(NF-2)"."$(NF-1)".0";exit}')/$(ip address show dev $(ip route get 8.8.8.8 | awk -F' ' '{print $(NF-2);exit}') | grep $(ip route get 8.8.8.8 | awk -F' ' '{print $NF;exit}') | awk -F'/' '{print $2}' | awk -F' ' '{print $1}')
 # INTERNET_GATEWAY=$(ip route get 8.8.8.8 | awk -F' ' '{print $3}')
-# 
+
+# openstack quota set $(openstack quota show | grep -e "project[ ]" | awk '{print $4}') --cores -1 --instances -1 --subnets -1 --ports -1 --ram -1 --networks -1
+# openstack quota set $(openstack quota show | grep -e "project[ ]" | awk '{print $4}') --cores -1 --instances -1 --subnets -1 --ports -1 --ram -1 --networks -1 --subnetpools -1 --floating-ips -1 --secgroups -1 --rbac-policies -1 --routers -1 --server-groups -1
 # openstack network create --share --external --provider-physical-network provider --provider-network-type flat provider
 # openstack subnet create --network provider --allocation-pool start=192.168.0.101,end=192.168.0.199 --dns-nameserver 168.126.63.1 --gateway 192.168.0.1 --subnet-range 192.168.0.0/24 provider
 # openstack network create --share "external service"
 # openstack subnet create --network "external service" --allocation-pool start=192.168.3.101,end=192.168.3.199 --dns-nameserver 168.126.63.1 --gateway 192.168.3.1 --subnet-range 192.168.3.0/24 "external service-subnet"
-# openstack network create --share "internal service"
-# openstack subnet create --network "internal service" --allocation-pool start=172.16.1.101,end=172.16.1.199 --dns-nameserver 168.126.63.1 --gateway 172.16.1.1 --subnet-range 172.16.1.0/24 "internal service-subnet"
-# openstack network create --share "dmz service"
-# openstack subnet create --network "dmz service" --allocation-pool start=172.16.10.101,end=172.16.10.199 --dns-nameserver 168.126.63.1 --gateway 172.16.10.1 --subnet-range 172.16.10.0/24 "dmz service-subnet"
 # openstack router create router
 # neutron router-interface-add router "external service-subnet"
 # neutron router-gateway-set router provider
 # openstack flavor create --vcpu 4 --ram 8192 --disk 111 --public "c4r8d111"
+# openstack flavor create --vcpu 2 --ram 2048 --disk 20 --public "c2r2d20"
+# openstack flavor create --vcpu 2 --ram 4096 --disk 20 --public "c2r4d20"
+
+# openstack network create --share "internal service"
+# openstack subnet create --network "internal service" --allocation-pool start=172.16.1.101,end=172.16.1.199 --dns-nameserver 168.126.63.1 --gateway 172.16.1.1 --subnet-range 172.16.1.0/24 "internal service-subnet"
+# openstack network create --share "dmz service"
+# openstack subnet create --network "dmz service" --allocation-pool start=172.16.10.101,end=172.16.10.199 --dns-nameserver 168.126.63.1 --gateway 172.16.10.1 --subnet-range 172.16.10.0/24 "dmz service-subnet"
+
 
 openstack network create --share --external --provider-physical-network provider --provider-network-type flat provider
 openstack subnet create --network provider --allocation-pool start=192.168.0.101,end=192.168.0.199 --dns-nameserver 168.126.63.1 --gateway 192.168.0.1 --subnet-range 192.168.0.0/24 provider
