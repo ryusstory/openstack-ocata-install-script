@@ -39,7 +39,6 @@ done
 for ((i = 1; i <= $COMPUTENODE; i++))
 do
 ssh ${HOST_name[$i]} "hostnamectl set-hostname ${HOST_name[$i]}"
-EOE
 done
 
 if [ $INSTALL_HEAT -eq 1 ]; then shfile=($(ls | grep -e "[0-9][0-9][-].*[.]sh" | grep -v "00-pre.sh" | sed 's/:.*//'))
