@@ -25,7 +25,6 @@ if [ $QUIETYUM -eq 1 ]; then yum install -q -y $PKGS; else yum install -y $PKGS;
 
 cat config.sh > basic.sh
 cat << "EOZ" >> basic.sh
-hostnamectl set-hostname ${HOST_name[$i]}
 # 컴퓨터 서버 수에 따라 호스트네임 추가
 for ((i = 0; i <= $COMPUTENODE; i++))
 do
